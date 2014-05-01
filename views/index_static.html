@@ -42,10 +42,13 @@
   hashChanged(window.location.hash);
 
   function main_search() {
-    route_search($('#search').val());
+    route_search(current_currency, $('#search').val(), function(location) { window.location.hash = '/' + location; });
   }
   
   function hashChanged(url) {
+    // Close web socket (if any was still running)
+    closeLiveIndex();
+    
     var url = window.location.hash;
     var url_parts = url.split('/');
     
@@ -76,13 +79,19 @@
         var keyValuePair = {};
         keyValuePair["qrcode_public"] = data.address.addr;
         ninja.qrCode.showQrCode(keyValuePair, 5);
+      } else if (request_type == 'error') {
+        $('#content').html('<div class="alert ' + alertType + ' alert-dismissable">'
+         + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'
+         + data['message']
+         + '</div>');
       }
       // Scroll to top
       document.body.scrollTop = document.documentElement.scrollTop = 0;
       
       // Update timeago
       $("abbr.timeago").timeago();
-    });
+    }, function(location) { window.location.hash = '/' + location; }
+    );
   }
   
 </script>
